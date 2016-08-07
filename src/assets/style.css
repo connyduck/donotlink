@@ -1,0 +1,127 @@
+body {
+   font-family: sans-serif;
+   color: #686868;
+   text-align: center;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+   line-height: 140%;
+   padding-top: 1em;
+}
+
+h1 {
+   font-family: monospace;
+   font-weight: 100;
+   font-size: 260%;
+   margin-bottom: 1em;
+}
+
+h1 span {
+   color: #0078e7;
+}
+
+form {
+margin: 0 auto;
+vertical-align: middle;
+}
+
+input, button {
+   margin: 1em;
+}
+
+input#url {
+   margin-top: 0;
+   font-size: medium;
+   border: 1px solid #ccc;
+   box-shadow: inset 0 1px 3px #ddd;
+   border-radius: 4px;
+   vertical-align: middle;
+   padding: .5em .6em;
+   min-width:16em;
+   max-width:42em;
+   width: 80%;
+   color: #686868;
+}
+
+input#url:focus {
+   outline: 0;
+   border-color: #0078e7;
+}
+
+button#submit {
+   font-size: medium;
+   vertical-align: middle;
+   text-align: center;
+   cursor: pointer;
+   padding: .6em 1.6em;
+   border: none;
+   background-color: #0078e7;
+   color: #fff;
+   text-decoration: none;
+   border-radius: 2px;
+   outline: 0;
+}
+
+button#submit:hover,
+button#submit:focus {
+    background-color: #0069d3;
+    background-image: linear-gradient(#0075ea, #0066cc);
+}
+button#submit:active {
+    box-shadow: 0 0 0 1px rgba(0,0,0, 0.15) inset, 0 0 6px rgba(0,0,0, 0.20) inset;
+    border-color: #000\9;
+}
+
+button#submit:disabled {
+    background-color: #97c8f7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+div.faq {
+   margin: 3em auto 1em;
+   text-align: left;
+   padding: 0 1em;
+   min-width:16em;
+   max-width:44em;
+}
+
+@media (min-width: 32em) {
+   div.faq {
+      width: 80%;
+   }
+}
+
+h2 {
+   font-weight: normal;
+   font-size: 150%;
+   margin-bottom: .5em;
+}
+
+p, ul {
+   margin-top: 0em;
+}
+
+ul li {
+   list-style-type: circle;
+   margin-left: 0;
+   margin-bottom: .3em;
+}
+
+a {
+   color: #686868;
+}
+
+a:hover,
+a:focus,
+a:active {
+   color: #0078e7;
+}
+
+p.credit {
+   text-align: center;
+   margin-top: 2em;
+}
+p.github {
+   text-align: center;
+   margin: 1em;
+}
