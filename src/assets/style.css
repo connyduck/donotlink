@@ -61,6 +61,13 @@ button#submit {
    outline: 0;
 }
 
+form button#submit:disabled {
+    background-image: none;
+    background-color: #97c8f7;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 button#submit:hover,
 button#submit:focus {
     background-color: #0069d3;
@@ -71,11 +78,7 @@ button#submit:active {
     border-color: #000\9;
 }
 
-button#submit:disabled {
-    background-color: #97c8f7;
-    cursor: not-allowed;
-    box-shadow: none;
-}
+
 
 div.faq {
    margin: 3em auto 1em;
