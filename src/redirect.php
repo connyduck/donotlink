@@ -25,6 +25,11 @@ $bots = array (
    "yandexbot"
 );
 
+if(!isset($_SERVER['HTTP_USER_AGENT'])) {
+   http_response_code(403);
+   return;
+}
+
 $user_agent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
 foreach ($bots as $bot) {
@@ -32,6 +37,17 @@ foreach ($bots as $bot) {
       http_response_code(403);
       return;
    }
+}
+
+$hashids = new Hashids\Hashids($hash_salt, $min_hash_length);
+$id = $hashids->decode($_GET['hash']);
+
+if(count($id) != 1) {
+   http_response_code(404);
+   include 'templates/header.html.php';
+   include 'templates/404.body.html.php';
+   include 'templates/footer.html.php';
+   return;
 }
 
 // Create connection
@@ -44,17 +60,6 @@ if (!$conn) {
     include 'templates/500.body.html.php';
     include 'templates/footer.html.php';
     return;
-}
-
-$hashids = new Hashids\Hashids($hash_salt, $min_hash_length);
-$id = $hashids->decode($_GET['hash']);
-
-if(count($id) != 1) {
-   http_response_code(404);
-   include 'templates/header.html.php';
-   include 'templates/404.body.html.php';
-   include 'templates/footer.html.php';
-   return;
 }
 
 if($sql = mysqli_prepare($conn, "SELECT url FROM redirect WHERE id = ?")) {
