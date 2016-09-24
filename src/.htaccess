@@ -1,10 +1,10 @@
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^l/([a-zA-Z0-9]+)$ link.php?hash=$1 [L]
-RewriteRule ^([a-zA-Z0-9]+)$ redirect.php?hash=$1 [L]
+RewriteRule ^l/([a-zA-Z0-9]+)$ link.php?donotlink=$1 [L]
+RewriteRule ^([a-zA-Z0-9]+)$ redirect.php?donotlink=$1 [L]
 RewriteCond %{REQUEST_URI} ^/(https?://.+)$
-RewriteRule ^(https?:/.+)$ redirect.php?hash=%1 [L]
+RewriteRule ^(https?:/.+)$ redirect.php?donotlink=%1 [L]
 
 ErrorDocument 403 /404.php
 ErrorDocument 404 /404.php

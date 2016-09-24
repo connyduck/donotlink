@@ -76,14 +76,14 @@ if($_SERVER['REQUEST_METHOD'] != 'POST') {
 
    $last_id = mysqli_insert_id($conn);
 
-   $hashids = new Hashids\Hashids($hash_salt, $min_hash_length);
-   $hash = $hashids->encode($last_id);
+   $hashids = new Hashids\Hashids($code_salt, $min_code_length);
+   $code = $hashids->encode($last_id);
 
 
    mysqli_close($conn);
 
    http_response_code(303);
-   header('Location: '.$server_name.$server_path.'/l/'.$hash);
+   header('Location: '.$server_name.$server_path.'/l/'.$code);
 }
 
 ?>

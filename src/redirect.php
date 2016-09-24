@@ -4,7 +4,9 @@ include_once 'config.inc.php';
 
 header('X-Robots-Tag: noindex, nofollow');
 
-if(!isset($_GET['hash'])) {
+$code = $_GET['donotlink'];
+
+if(!isset($code)) {
    http_response_code(404);
    include 'templates/header.html.php';
    include 'templates/404.body.html.php';
@@ -39,16 +41,14 @@ foreach ($bots as $bot) {
    }
 }
 
-$hash = $_GET['hash'];
-
-if (preg_match($url_regex, $hash)) {
-   $url = $hash;
+if (preg_match($url_regex, $code)) {
+   $url = $code;
    include 'templates/redirect.html.php';
    return;
 }
 
-$hashids = new Hashids\Hashids($hash_salt, $min_hash_length);
-$id = $hashids->decode($_GET['hash']);
+$hashids = new Hashids\Hashids($code_salt, $min_code_length);
+$id = $hashids->decode($code);
 
 if(count($id) != 1) {
    http_response_code(404);
@@ -107,6 +107,4 @@ if (!preg_match($url_regex, $url)) {
 
 include 'templates/redirect.html.php';
 
-
-
- ?>
+?>
