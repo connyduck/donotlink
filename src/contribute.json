@@ -1,0 +1,23 @@
+{
+    "name": "donotlink",
+    "description": "A simple and fast url shortener that blocks search engines from following links and removes the referer.",
+    "repository": {
+        "url": "https://github.com/connyduck/donotlink",
+        "license": "MIT"
+    },
+    "participate": {
+        "docs": "https://github.com/connyduck/donotlink"
+    },
+    "bugs": {
+        "report": "https://github.com/connyduck/donotlink/issues"
+    },
+    "urls": {
+        "prod": "https://donotlink.it"
+     },
+    "keywords": [
+        "php",
+        "css",
+        "html5",
+        "javascript"
+    ]
+}
