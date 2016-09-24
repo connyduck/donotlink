@@ -16,8 +16,7 @@ Donotlink requires a database (MySQL or MariaDB) and PHP (preferably 7).
 Create a database and set up the redirect table as specified in the **donotlink.sql** file.  
 Copy the src directory to the root directory of your domain. Edit the **config.inc.php** file accordingly.  
 You are ready to go.  
-If you do not want to use the root directory, you have to edit the **.htaccess** files to make custom error pages work.  
-Search engines will not find the **robots.txt** if it is not placed in the root directory.
+If you do not use donotlink under the root of your domain, **.htaccess** redirects and **robots.txt** rules will not work anymore.
 
 ### nginx
 

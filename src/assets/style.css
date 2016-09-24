@@ -78,20 +78,21 @@ button#submit:active {
     border-color: #000\9;
 }
 
-
-
-div.faq {
-   margin: 3em auto 1em;
-   text-align: left;
+div {
    padding: 0 1em;
    min-width:16em;
+   margin: 3em auto 1em;
    max-width:44em;
 }
 
 @media (min-width: 32em) {
-   div.faq {
+   div {
       width: 80%;
    }
+}
+
+div.faq {
+   text-align: left;
 }
 
 h2 {
