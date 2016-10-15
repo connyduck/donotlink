@@ -6,7 +6,12 @@
 <meta name="robots" content="index, nofollow" />
 <title> <?php echo $site_name; ?> </title>
 <link rel="icon" type="image/x-icon" href="<?php echo $server_path; ?>/favicon.ico" />
-<?php if(isset($canonical_url)) echo "<link rel=\"canonical\" href=\"$canonical_url\">"; ?>
+<?php
+   if(isset($canonical_url))
+      echo "<link rel=\"canonical\" href=\"$canonical_url\">
+<meta name=\"description\" content=\"Using $site_name instead of linking to questionable websites directly will prevent your links from improving these websites' position in search engines.\" />
+";
+?>
 <link rel="stylesheet" type="text/css" href="<?php echo $server_path; ?>/assets/style.css" />
 </head>
 <body>
