@@ -81,7 +81,7 @@ button#submit:active {
 div {
    padding: 0 1em;
    min-width:16em;
-   margin: 3em auto 1em;
+   margin: 1em auto 1em;
    max-width:44em;
 }
 
@@ -93,6 +93,7 @@ div {
 
 div.faq {
    text-align: left;
+   margin: 3em auto 1em;
 }
 
 h2 {

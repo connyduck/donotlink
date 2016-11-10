@@ -85,7 +85,7 @@ if($url == null) {
    return;
 }
 
-$url = $server_name.$server_path.'/'.$code;
+$donotlink_url = $server_name.$server_path.'/'.$code;
 
 include 'templates/header.html.php';
 include 'templates/link.body.html.php';
