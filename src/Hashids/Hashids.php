@@ -1,354 +1,366 @@
 <?php
 
 /*
-
-	Hashids
-	http://hashids.org/php
-	(c) 2013 Ivan Akimov
-
-	https://github.com/ivanakimov/hashids.php
-	hashids may be freely distributed under the MIT license.
-
-*/
+ * This file is part of Hashids.
+ *
+ * (c) Ivan Akimov <ivan@barreleye.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Hashids;
 
-
-class Hashids {
-
-	const VERSION = '1.0.5';
-
-	/* internal settings */
-
-	const MIN_ALPHABET_LENGTH = 16;
-	const SEP_DIV = 3.5;
-	const GUARD_DIV = 12;
-
-	/* error messages */
-
-	const E_ALPHABET_LENGTH = 'alphabet must contain at least %d unique characters';
-	const E_ALPHABET_SPACE = 'alphabet cannot contain spaces';
-
-	/* set at constructor */
-
-	private $_alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-	private $_seps = 'cfhistuCFHISTU';
-	private $_min_hash_length = 0;
-	private $_math_functions = array();
-	private $_max_int_value = 1000000000;
-
-	public function __construct($salt = '', $min_hash_length = 0, $alphabet = '') {
-
-		/* if either math precision library is present, raise $this->_max_int_value */
-
-		if (function_exists('gmp_add')) {
-			$this->_math_functions['add'] = 'gmp_add';
-			$this->_math_functions['div'] = 'gmp_div';
-			$this->_math_functions['str'] = 'gmp_strval';
-		} else if (function_exists('bcadd')) {
-			$this->_math_functions['add'] = 'bcadd';
-			$this->_math_functions['div'] = 'bcdiv';
-			$this->_math_functions['str'] = 'strval';
-		}
-
-		$this->_lower_max_int_value = $this->_max_int_value;
-		if ($this->_math_functions) {
-			$this->_max_int_value = PHP_INT_MAX;
-		}
-
-		/* handle parameters */
-
-		$this->_salt = $salt;
-
-		if ((int)$min_hash_length > 0) {
-			$this->_min_hash_length = (int)$min_hash_length;
-		}
-
-		if ($alphabet) {
-			$this->_alphabet = implode('', array_unique(str_split($alphabet)));
-		}
-
-		if (strlen($this->_alphabet) < self::MIN_ALPHABET_LENGTH) {
-			throw new \Exception(sprintf(self::E_ALPHABET_LENGTH, self::MIN_ALPHABET_LENGTH));
-		}
-
-		if (is_int(strpos($this->_alphabet, ' '))) {
-			throw new \Exception(self::E_ALPHABET_SPACE);
-		}
-
-		$alphabet_array = str_split($this->_alphabet);
-		$seps_array = str_split($this->_seps);
-
-		$this->_seps = implode('', array_intersect($alphabet_array, $seps_array));
-		$this->_alphabet = implode('', array_diff($alphabet_array, $seps_array));
-		$this->_seps = $this->_consistent_shuffle($this->_seps, $this->_salt);
-
-		if (!$this->_seps || (strlen($this->_alphabet) / strlen($this->_seps)) > self::SEP_DIV) {
-
-			$seps_length = (int)ceil(strlen($this->_alphabet) / self::SEP_DIV);
-
-			if ($seps_length == 1) {
-				$seps_length++;
-			}
-
-			if ($seps_length > strlen($this->_seps)) {
-
-				$diff = $seps_length - strlen($this->_seps);
-				$this->_seps .= substr($this->_alphabet, 0, $diff);
-				$this->_alphabet = substr($this->_alphabet, $diff);
-
-			} else {
-				$this->_seps = substr($this->_seps, 0, $seps_length);
-			}
-
-		}
-
-		$this->_alphabet = $this->_consistent_shuffle($this->_alphabet, $this->_salt);
-		$guard_count = (int)ceil(strlen($this->_alphabet) / self::GUARD_DIV);
-
-		if (strlen($this->_alphabet) < 3) {
-			$this->_guards = substr($this->_seps, 0, $guard_count);
-			$this->_seps = substr($this->_seps, $guard_count);
-		} else {
-			$this->_guards = substr($this->_alphabet, 0, $guard_count);
-			$this->_alphabet = substr($this->_alphabet, $guard_count);
-		}
-
-	}
-
-	public function encode() {
-
-		$ret = '';
-		$numbers = func_get_args();
-
-		if (func_num_args() == 1 && is_array(func_get_arg(0))) {
-			$numbers = $numbers[0];
-		}
-
-		if (!$numbers) {
-			return $ret;
-		}
-
-		foreach ($numbers as $number) {
-
-			$is_number = ctype_digit((string)$number);
-
-			if (!$is_number || $number < 0 || $number > $this->_max_int_value) {
-				return $ret;
-			}
-
-		}
-
-		return $this->_encode($numbers);
-
-	}
-
-	public function decode($hash) {
-
-		$ret = array();
-
-		if (!$hash || !is_string($hash) || !trim($hash)) {
-			return $ret;
-		}
-
-		return $this->_decode(trim($hash), $this->_alphabet);
-
-	}
-
-	public function encode_hex($str) {
-
-		if (!ctype_xdigit((string)$str)) {
-			return '';
-		}
-
-		$numbers = trim(chunk_split($str, 12, ' '));
-		$numbers = explode(' ', $numbers);
-
-		foreach ($numbers as $i => $number) {
-			$numbers[$i] = hexdec('1' . $number);
-		}
-
-		return call_user_func_array(array($this, 'encode'), $numbers);
-
-	}
-
-	public function decode_hex($hash) {
-
-		$ret = "";
-		$numbers = $this->decode($hash);
-
-		foreach ($numbers as $i => $number) {
-			$ret .= substr(dechex($number), 1);
-		}
-
-		return $ret;
-
-	}
-
-	public function get_max_int_value() {
-		return $this->_max_int_value;
-	}
-
-	private function _encode(array $numbers) {
-
-		$alphabet = $this->_alphabet;
-		$numbers_size = sizeof($numbers);
-		$numbers_hash_int = 0;
-
-		foreach ($numbers as $i => $number) {
-			$numbers_hash_int += ($number % ($i + 100));
-		}
-
-		$lottery = $ret = $alphabet[$numbers_hash_int % strlen($alphabet)];
-		foreach ($numbers as $i => $number) {
-
-			$alphabet = $this->_consistent_shuffle($alphabet, substr($lottery . $this->_salt . $alphabet, 0, strlen($alphabet)));
-			$ret .= $last = $this->_hash($number, $alphabet);
-
-			if ($i + 1 < $numbers_size) {
-				$number %= (ord($last) + $i);
-				$seps_index = $number % strlen($this->_seps);
-				$ret .= $this->_seps[$seps_index];
-			}
-
-		}
-
-		if (strlen($ret) < $this->_min_hash_length) {
-
-			$guard_index = ($numbers_hash_int + ord($ret[0])) % strlen($this->_guards);
-
-			$guard = $this->_guards[$guard_index];
-			$ret = $guard . $ret;
-
-			if (strlen($ret) < $this->_min_hash_length) {
-
-				$guard_index = ($numbers_hash_int + ord($ret[2])) % strlen($this->_guards);
-				$guard = $this->_guards[$guard_index];
-
-				$ret .= $guard;
-
-			}
-
-		}
-
-		$half_length = (int)(strlen($alphabet) / 2);
-		while (strlen($ret) < $this->_min_hash_length) {
-
-			$alphabet = $this->_consistent_shuffle($alphabet, $alphabet);
-			$ret = substr($alphabet, $half_length) . $ret . substr($alphabet, 0, $half_length);
-
-			$excess = strlen($ret) - $this->_min_hash_length;
-			if ($excess > 0) {
-				$ret = substr($ret, $excess / 2, $this->_min_hash_length);
-			}
-
-		}
-
-		return $ret;
-
-	}
-
-	private function _decode($hash, $alphabet) {
-
-		$ret = array();
-
-		$hash_breakdown = str_replace(str_split($this->_guards), ' ', $hash);
-		$hash_array = explode(' ', $hash_breakdown);
-
-		$i = 0;
-		if (sizeof($hash_array) == 3 || sizeof($hash_array) == 2) {
-			$i = 1;
-		}
-
-		$hash_breakdown = $hash_array[$i];
-		if (isset($hash_breakdown[0])) {
-
-			$lottery = $hash_breakdown[0];
-			$hash_breakdown = substr($hash_breakdown, 1);
-
-			$hash_breakdown = str_replace(str_split($this->_seps), ' ', $hash_breakdown);
-			$hash_array = explode(' ', $hash_breakdown);
-
-			foreach ($hash_array as $sub_hash) {
-				$alphabet = $this->_consistent_shuffle($alphabet, substr($lottery . $this->_salt . $alphabet, 0, strlen($alphabet)));
-				$ret[] = (int)$this->_unhash($sub_hash, $alphabet);
-			}
-
-			if ($this->_encode($ret) != $hash) {
-				$ret = array();
-			}
-
-		}
-
-		return $ret;
-
-	}
-
-	private function _consistent_shuffle($alphabet, $salt) {
-
-		if (!strlen($salt)) {
-			return $alphabet;
-		}
-
-		for ($i = strlen($alphabet) - 1, $v = 0, $p = 0; $i > 0; $i--, $v++) {
-
-			$v %= strlen($salt);
-			$p += $int = ord($salt[$v]);
-			$j = ($int + $v + $p) % $i;
-
-			$temp = $alphabet[$j];
-			$alphabet[$j] = $alphabet[$i];
-			$alphabet[$i] = $temp;
-
-		}
-
-		return $alphabet;
-
-	}
-
-	private function _hash($input, $alphabet) {
-
-		$hash = '';
-		$alphabet_length = strlen($alphabet);
-
-		do {
-
-			$hash = $alphabet[$input % $alphabet_length] . $hash;
-			if ($input > $this->_lower_max_int_value && $this->_math_functions) {
-				$input = $this->_math_functions['str']($this->_math_functions['div']($input, $alphabet_length));
-			} else {
-				$input = (int)($input / $alphabet_length);
-			}
-
-		} while ($input);
-
-		return $hash;
-
-	}
-
-	private function _unhash($input, $alphabet) {
-
-		$number = 0;
-		if (strlen($input) && $alphabet) {
-
-			$alphabet_length = strlen($alphabet);
-			$input_chars = str_split($input);
-
-			foreach ($input_chars as $i => $char) {
-
-				$pos = strpos($alphabet, $char);
-				if ($this->_math_functions) {
-					$number = $this->_math_functions['str']($this->_math_functions['add']($number, $pos * pow($alphabet_length, (strlen($input) - $i - 1))));
-				} else {
-					$number += $pos * pow($alphabet_length, (strlen($input) - $i - 1));
-				}
-
-			}
-
-		}
-
-		return $number;
-
-	}
-
+include 'Math.php';
+
+/**
+ * This is the hashids class.
+ *
+ * @author Ivan Akimov <ivan@barreleye.com>
+ * @author Vincent Klaiber <hello@vinkla.com>
+ */
+class Hashids
+{
+    /**
+     * The seps divider.
+     *
+     * @var float
+     */
+    const SEP_DIV = 3.5;
+
+    /**
+     * The guard divider.
+     *
+     * @var float
+     */
+    const GUARD_DIV = 12;
+
+    /**
+     * The alphabet string.
+     *
+     * @var string
+     */
+    protected $alphabet;
+
+    /**
+     * The seps string.
+     *
+     * @var string
+     */
+    protected $seps = 'cfhistuCFHISTU';
+
+    /**
+     * The guards string.
+     *
+     * @var string
+     */
+    protected $guards;
+
+    /**
+     * The minimum hash length.
+     *
+     * @var int
+     */
+    protected $minHashLength;
+
+    /**
+     * The salt string.
+     *
+     * @var string
+     */
+    protected $salt;
+
+    /**
+     * Create a new hashids instance.
+     *
+     * @param string $salt
+     * @param int $minHashLength
+     * @param string $alphabet
+     *
+     * @throws \Hashids\HashidsException
+     *
+     * @return void
+     */
+    public function __construct($salt = '', $minHashLength = 0, $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
+    {
+        $this->salt = $salt;
+        $this->minHashLength = $minHashLength;
+        $this->alphabet = implode('', array_unique(str_split($alphabet)));
+
+        if (strlen($this->alphabet) < 16) {
+            throw new HashidsException('Alphabet must contain at least 16 unique characters.');
+        }
+
+        if (strpos($this->alphabet, ' ') !== false) {
+            throw new HashidsException('Alphabet can\'t contain spaces.');
+        }
+
+        $alphabetArray = str_split($this->alphabet);
+        $sepsArray = str_split($this->seps);
+
+        $this->seps = implode('', array_intersect($sepsArray, $alphabetArray));
+        $this->alphabet = implode('', array_diff($alphabetArray, $sepsArray));
+        $this->seps = $this->shuffle($this->seps, $this->salt);
+
+        if (!$this->seps || (strlen($this->alphabet) / strlen($this->seps)) > self::SEP_DIV) {
+            $sepsLength = (int) ceil(strlen($this->alphabet) / self::SEP_DIV);
+
+            if ($sepsLength > strlen($this->seps)) {
+                $diff = $sepsLength - strlen($this->seps);
+                $this->seps .= substr($this->alphabet, 0, $diff);
+                $this->alphabet = substr($this->alphabet, $diff);
+            }
+        }
+
+        $this->alphabet = $this->shuffle($this->alphabet, $this->salt);
+        $guardCount = (int) ceil(strlen($this->alphabet) / self::GUARD_DIV);
+
+        if (strlen($this->alphabet) < 3) {
+            $this->guards = substr($this->seps, 0, $guardCount);
+            $this->seps = substr($this->seps, $guardCount);
+        } else {
+            $this->guards = substr($this->alphabet, 0, $guardCount);
+            $this->alphabet = substr($this->alphabet, $guardCount);
+        }
+    }
+
+    /**
+     * Encode parameters to generate a hash.
+     *
+     * @return string
+     */
+    public function encode()
+    {
+        $ret = '';
+        $numbers = func_get_args();
+
+        if (func_num_args() == 1 && is_array(func_get_arg(0))) {
+            $numbers = $numbers[0];
+        }
+
+        if (!$numbers) {
+            return $ret;
+        }
+
+        foreach ($numbers as $number) {
+            $isNumber = ctype_digit((string) $number);
+
+            if (!$isNumber || $number < 0 || $number > PHP_INT_MAX) {
+                return $ret;
+            }
+        }
+
+        $alphabet = $this->alphabet;
+        $numbersSize = count($numbers);
+        $numbersHashInt = 0;
+
+        foreach ($numbers as $i => $number) {
+            $numbersHashInt += ($number % ($i + 100));
+        }
+
+        $lottery = $ret = $alphabet[$numbersHashInt % strlen($alphabet)];
+        foreach ($numbers as $i => $number) {
+            $alphabet = $this->shuffle($alphabet, substr($lottery.$this->salt.$alphabet, 0, strlen($alphabet)));
+            $ret .= $last = $this->hash($number, $alphabet);
+
+            if ($i + 1 < $numbersSize) {
+                $number %= (ord($last) + $i);
+                $sepsIndex = $number % strlen($this->seps);
+                $ret .= $this->seps[$sepsIndex];
+            }
+        }
+
+        if (strlen($ret) < $this->minHashLength) {
+            $guardIndex = ($numbersHashInt + ord($ret[0])) % strlen($this->guards);
+
+            $guard = $this->guards[$guardIndex];
+            $ret = $guard.$ret;
+
+            if (strlen($ret) < $this->minHashLength) {
+                $guardIndex = ($numbersHashInt + ord($ret[2])) % strlen($this->guards);
+                $guard = $this->guards[$guardIndex];
+
+                $ret .= $guard;
+            }
+        }
+
+        $halfLength = (int) (strlen($alphabet) / 2);
+        while (strlen($ret) < $this->minHashLength) {
+            $alphabet = $this->shuffle($alphabet, $alphabet);
+            $ret = substr($alphabet, $halfLength).$ret.substr($alphabet, 0, $halfLength);
+
+            $excess = strlen($ret) - $this->minHashLength;
+            if ($excess > 0) {
+                $ret = substr($ret, $excess / 2, $this->minHashLength);
+            }
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Decode a hash to the original parameter values.
+     *
+     * @param string $hash
+     *
+     * @return array
+     */
+    public function decode($hash)
+    {
+        $ret = [];
+
+        if (!is_string($hash) || !($hash = trim($hash))) {
+            return $ret;
+        }
+
+        $alphabet = $this->alphabet;
+
+        $ret = [];
+
+        $hashBreakdown = str_replace(str_split($this->guards), ' ', $hash);
+        $hashArray = explode(' ', $hashBreakdown);
+
+        $i = count($hashArray) == 3 || count($hashArray) == 2 ? 1 : 0;
+
+        $hashBreakdown = $hashArray[$i];
+
+        if (isset($hashBreakdown[0])) {
+            $lottery = $hashBreakdown[0];
+            $hashBreakdown = substr($hashBreakdown, 1);
+
+            $hashBreakdown = str_replace(str_split($this->seps), ' ', $hashBreakdown);
+            $hashArray = explode(' ', $hashBreakdown);
+
+            foreach ($hashArray as $subHash) {
+                $alphabet = $this->shuffle($alphabet, substr($lottery.$this->salt.$alphabet, 0, strlen($alphabet)));
+                $ret[] = (int) $this->unhash($subHash, $alphabet);
+            }
+
+            if ($this->encode($ret) != $hash) {
+                $ret = [];
+            }
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Encode hexadecimal values and generate a hash string.
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    public function encodeHex($str)
+    {
+        if (!ctype_xdigit((string) $str)) {
+            return '';
+        }
+
+        $numbers = trim(chunk_split($str, 12, ' '));
+        $numbers = explode(' ', $numbers);
+
+        foreach ($numbers as $i => $number) {
+            $numbers[$i] = hexdec('1'.$number);
+        }
+
+        return call_user_func_array([$this, 'encode'], $numbers);
+    }
+
+    /**
+     * Decode a hexadecimal hash.
+     *
+     * @param string $hash
+     *
+     * @return string
+     */
+    public function decodeHex($hash)
+    {
+        $ret = '';
+        $numbers = $this->decode($hash);
+
+        foreach ($numbers as $i => $number) {
+            $ret .= substr(dechex($number), 1);
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Shuffle alphabet by given salt.
+     *
+     * @param string $alphabet
+     * @param string $salt
+     *
+     * @return string
+     */
+    protected function shuffle($alphabet, $salt)
+    {
+        $saltLength = strlen($salt);
+
+        if (!$saltLength) {
+            return $alphabet;
+        }
+
+        for ($i = strlen($alphabet) - 1, $v = 0, $p = 0; $i > 0; $i--, $v++) {
+            $v %= $saltLength;
+            $p += $int = ord($salt[$v]);
+            $j = ($int + $v + $p) % $i;
+
+            $temp = $alphabet[$j];
+            $alphabet[$j] = $alphabet[$i];
+            $alphabet[$i] = $temp;
+        }
+
+        return $alphabet;
+    }
+
+    /**
+     * Hash given input value.
+     *
+     * @param string $input
+     * @param string $alphabet
+     *
+     * @return string
+     */
+    protected function hash($input, $alphabet)
+    {
+        $hash = '';
+        $alphabetLength = strlen($alphabet);
+
+        do {
+            $hash = $alphabet[$input % $alphabetLength].$hash;
+
+            $input = Math::divide($input, $alphabetLength);
+        } while ($input);
+
+        return $hash;
+    }
+
+    /**
+     * Unhash given input value.
+     *
+     * @param string $input
+     * @param string $alphabet
+     *
+     * @return int
+     */
+    protected function unhash($input, $alphabet)
+    {
+        $number = 0;
+        $inputLength = strlen($input);
+
+        if ($inputLength && $alphabet) {
+            $alphabetLength = strlen($alphabet);
+            $inputChars = str_split($input);
+
+            foreach ($inputChars as $i => $char) {
+                $pos = strpos($alphabet, $char);
+
+                $number = Math::add($number, $pos * Math::pow($alphabetLength, ($inputLength - $i - 1)));
+            }
+        }
+
+        return $number;
+    }
 }
