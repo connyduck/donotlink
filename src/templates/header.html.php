@@ -15,6 +15,7 @@
 <link rel="stylesheet" type="text/css" href="<?php echo $server_path; ?>/assets/style.css" />
 <meta name="theme-color" content="#0078e7">
 <link rel="icon" sizes="192x192" href="<?php echo $server_path; ?>/assets/icon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
    <h1> do<span>NOT</span>link<span>.</span>it </h1>
