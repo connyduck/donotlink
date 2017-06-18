@@ -115,6 +115,7 @@ ul li {
 }
 
 a {
+   transition: all .2s ease-in-out;
    color: #686868;
 }
 
