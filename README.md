@@ -7,9 +7,22 @@ See donotlink in action at [donotlink.it](https://donotlink.it)
 Donotlink is a simple and fast url shortener that blocks search engines from following links and removes the referer.  
 Linking to websites via donotlink will not improve the sites position in search engines.
 
+## API
+send a POST request to https://donotlink.it/api
+```
+POST /api
+url=http://example.com
+
+{
+  "url": "http:\/\/example.com",
+  "code": "Y5Yn",
+  "donotlink": "https:\/\/donotlink.it\/Y5Yn"
+}
+```
+
 ## Installation - Apache
 
-Donotlink requires a database (MySQL or MariaDB) and PHP (preferably 7).
+Donotlink requires a database (MySQL or MariaDB) and PHP 7.
 
 ### Apache
 

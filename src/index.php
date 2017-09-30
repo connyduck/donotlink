@@ -1,89 +1,39 @@
 <?php
 include_once 'config.inc.php';
+include_once 'engine.inc.php';
 
 if($_SERVER['REQUEST_METHOD'] != 'POST') {
 
-   $canonical_url = $server_name.$server_path;
+    $canonical_url = SERVER_NAME.SERVER_PATH;
 
-   include 'templates/header.html.php';
-   include 'templates/index.body.html.php';
-   include 'templates/faq.body.html.php';
-   include 'templates/footer.html.php';
+    include 'templates/header.html.php';
+    include 'templates/index.body.html.php';
+    include 'templates/faq.body.html.php';
+    include 'templates/footer.html.php';
 
 } else {
-   include_once 'Hashids/Hashids.php';
-
-   if(!isset($_POST['url'])) {
-      http_response_code(400);
-      include 'templates/header.html.php';
-      echo "missing input";
-      include 'templates/footer.html.php';
-      return;
-   }
-
-   $input_url = trim($_POST['url']);
-
-   if (strlen($input_url) > 1000) {
-      http_response_code(400);
-      include 'templates/header.html.php';
-      echo "url too long, could not shorten";
-      include 'templates/footer.html.php';
-      return;
-   }
-
-   if (!preg_match($url_regex, $input_url)) {
-      http_response_code(400);
-      include 'templates/header.html.php';
-      echo "malformed url, could not shorten";
-      include 'templates/footer.html.php';
-      return;
-   }
-
-   if(strpos($input_url, $server_name) === 0) {
-      http_response_code(400);
-      include 'templates/header.html.php';
-      echo "cannot shorten $site_name links";
-      include 'templates/footer.html.php';
-      return;
-   }
-
-   // Create connection
-   $conn = mysqli_connect($db_server, $db_username, $db_password, $db_name);
-
-   // Check connection
-   if (!$conn) {
-      http_response_code(500);
-      include 'templates/header.html.php';
-      include 'templates/500.body.html.php';
-      include 'templates/footer.html.php';
-      return;
-   }
-
-   if($sql = mysqli_prepare($conn, "INSERT INTO redirect (url) VALUES (?)")) {
-
-      mysqli_stmt_bind_param($sql, "s", $input_url);
-
-      mysqli_stmt_execute($sql);
-
-      mysqli_stmt_close($sql);
-   } else {
-      http_response_code(500);
-      include 'templates/header.html.php';
-      include 'templates/500.body.html.php';
-      include 'templates/footer.html.php';
-      return;
-   }
-
-   $last_id = mysqli_insert_id($conn);
-
-   $hashids = new Hashids\Hashids($code_salt, $min_code_length);
-   $code = $hashids->encode($last_id);
-
-
-   mysqli_close($conn);
-
+    $engine = new DoNotLinkEngine($_POST['url']);
+    
+    $check = $engine->check();
+    
+    if($check !== true) {
+        include 'templates/header.html.php';
+        echo $check;
+        include 'templates/footer.html.php';
+        return;
+    }
+    
+    $code = $engine->shorten();
+    
+    if($code === NULL) {
+        include 'templates/header.html.php';            
+        include 'templates/500.body.html.php';
+        include 'templates/footer.html.php';            
+        return;
+    }
+    
    http_response_code(303);
-   header('Location: '.$server_name.$server_path.'/l/'.$code);
+   header('Location: '.SERVER_NAME.SERVER_PATH.'/l/'.$code);
 }
 
 ?>
