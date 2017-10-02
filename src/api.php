@@ -15,6 +15,7 @@ if($_SERVER['REQUEST_METHOD'] != 'POST') {
     $check = $engine->check();
 
     if($check !== true) {
+        http_response_code(400);            
         echo json_encode(array("error"=>$check));
         return;
     }
@@ -22,6 +23,7 @@ if($_SERVER['REQUEST_METHOD'] != 'POST') {
     $code = $engine->shorten();
 
     if($code === NULL) {
+        http_response_code(500);            
         echo json_encode(array("error"=>"server error"));
         return;
     }

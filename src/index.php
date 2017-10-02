@@ -17,6 +17,7 @@ if($_SERVER['REQUEST_METHOD'] != 'POST') {
     $check = $engine->check();
     
     if($check !== true) {
+        http_response_code(400);            
         include 'templates/header.html.php';
         echo $check;
         include 'templates/footer.html.php';
@@ -26,6 +27,7 @@ if($_SERVER['REQUEST_METHOD'] != 'POST') {
     $code = $engine->shorten();
     
     if($code === NULL) {
+        http_response_code(500);        
         include 'templates/header.html.php';            
         include 'templates/500.body.html.php';
         include 'templates/footer.html.php';            
