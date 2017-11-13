@@ -11,10 +11,13 @@
 
 namespace Hashids;
 
+use RuntimeException;
+
 /**
  * This is the math class.
  *
  * @author Vincent Klaiber <hello@vinkla.com>
+ * @author Jakub Kramarz <lenwe@lenwe.net>
  */
 class Math
 {
@@ -24,6 +27,8 @@ class Math
      * @param string $a
      * @param string $b
      *
+     * @throws \RuntimeException
+     *
      * @return string
      */
     public static function add($a, $b)
@@ -32,7 +37,11 @@ class Math
             return gmp_add($a, $b);
         }
 
-        return bcadd($a, $b, 0);
+        if (function_exists('bcadd')) {
+            return bcadd($a, $b, 0);
+        }
+
+        throw new RuntimeException('Missing BC Math or GMP extension.');
     }
 
     /**
@@ -40,6 +49,8 @@ class Math
      *
      * @param string $a
      * @param string $b
+     *
+     * @throws \RuntimeException
      *
      * @return string
      */
@@ -49,7 +60,11 @@ class Math
             return gmp_mul($a, $b);
         }
 
-        return bcmul($a, $b, 0);
+        if (function_exists('bcmul')) {
+            return bcmul($a, $b, 0);
+        }
+
+        throw new RuntimeException('Missing BC Math or GMP extension.');
     }
 
     /**
@@ -57,6 +72,8 @@ class Math
      *
      * @param string $a
      * @param string $b
+     *
+     * @throws \RuntimeException
      *
      * @return string
      */
@@ -66,24 +83,11 @@ class Math
             return gmp_div_q($a, $b);
         }
 
-        return bcdiv($a, $b, 0);
-    }
-
-    /**
-     * Raise arbitrary-length integer into power.
-     *
-     * @param string $base
-     * @param string $exp
-     *
-     * @return string
-     */
-    public static function pow($base, $exp)
-    {
-        if (function_exists('gmp_pow')) {
-            return gmp_pow($base, $exp);
+        if (function_exists('bcdiv')) {
+            return bcdiv($a, $b, 0);
         }
 
-        return bcpow($base, $exp, 0);
+        throw new RuntimeException('Missing BC Math or GMP extension.');
     }
 
     /**
@@ -91,6 +95,8 @@ class Math
      *
      * @param string $n
      * @param string $d
+     *
+     * @throws \RuntimeException
      *
      * @return string
      */
@@ -100,24 +106,34 @@ class Math
             return gmp_mod($n, $d);
         }
 
-        return bcmod($n, $d);
+        if (function_exists('bcmod')) {
+            return bcmod($n, $d);
+        }
+
+        throw new RuntimeException('Missing BC Math or GMP extension.');
     }
 
     /**
-     * Compares two arbitrary-length integer modulo.
+     * Compares two arbitrary-length integers.
      *
      * @param string $a
      * @param string $b
      *
-     * @return int
+     * @throws \RuntimeException
+     *
+     * @return bool
      */
-    public static function comp($a, $b)
+    public static function greaterThan($a, $b)
     {
         if (function_exists('gmp_cmp')) {
-            return gmp_cmp($a, $b);
+            return gmp_cmp($a, $b) > 0;
         }
 
-        return bccomp($a, $b, 0);
+        if (function_exists('bccomp')) {
+            return bccomp($a, $b, 0) > 0;
+        }
+
+        throw new RuntimeException('Missing BC Math or GMP extension.');
     }
 
     /**

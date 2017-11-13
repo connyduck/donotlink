@@ -127,14 +127,15 @@ class Hashids
     /**
      * Encode parameters to generate a hash.
      *
+     * @param mixed $numbers
+     *
      * @return string
      */
-    public function encode()
+    public function encode(...$numbers)
     {
         $ret = '';
-        $numbers = func_get_args();
 
-        if (func_num_args() == 1 && is_array(func_get_arg(0))) {
+        if (1 === count($numbers) && is_array($numbers[0])) {
             $numbers = $numbers[0];
         }
 
@@ -234,10 +235,10 @@ class Hashids
             foreach ($hashArray as $subHash) {
                 $alphabet = $this->shuffle($alphabet, substr($lottery.$this->salt.$alphabet, 0, strlen($alphabet)));
                 $result = $this->unhash($subHash, $alphabet);
-                if (Math::comp($result, PHP_INT_MAX) <= 0) {
-                    $ret[] = Math::intval($result);
-                } else {
+                if (Math::greaterThan($result, PHP_INT_MAX)) {
                     $ret[] = Math::strval($result);
+                } else {
+                    $ret[] = Math::intval($result);
                 }
             }
 
@@ -337,7 +338,7 @@ class Hashids
             $hash = $alphabet[Math::intval(Math::mod($input, $alphabetLength))].$hash;
 
             $input = Math::divide($input, $alphabetLength);
-        } while (Math::comp(0, $input) != 0);
+        } while (Math::greaterThan($input, 0));
 
         return $hash;
     }
