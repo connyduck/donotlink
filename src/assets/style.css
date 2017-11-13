@@ -133,6 +133,10 @@ p.github {
    text-align: center;
    margin: 1em;
 }
+p.patreon {
+    text-align: center;
+    margin: 1em;
+ }
 
 .loadingButton {
    position: relative;
