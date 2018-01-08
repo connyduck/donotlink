@@ -26,6 +26,10 @@
    <li><?php echo SITE_NAME; ?> does not prevent the linked site from getting ad revenue from visitors.</li>
 </ul>
 <p class="credit"> created by <a href="https://twitter.com/connyduck">@ConnyDuck</a></p>
-<p class="patreon"><a href="https://www.patreon.com/connyduck">Support on Patreon </a></p>
+<p class="patreon">
+<a href="https://www.patreon.com/connyduck">Support on Patreon</a> &bull;
+<a href="https://liberapay.com/ConnyDuck">Support on Liberapay</a>
+
+</p>
 <p class="github"><a href="https://github.com/connyduck/donotlink">Get the source code on Github</a></p>
 </div>
