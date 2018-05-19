@@ -1,62 +1,59 @@
 body {
-   font-family: sans-serif;
-   color: #686868;
-   text-align: center;
-   -webkit-font-smoothing: antialiased;
-   -moz-osx-font-smoothing: grayscale;
-   line-height: 140%;
-   padding-top: 1em;
+    font-family: sans-serif;
+    color: #686868;
+    text-align: center;
+    line-height: 140%;
+    padding-top: 1em;
 }
 
 h1 {
-   font-family: monospace;
-   font-weight: 100;
-   font-size: 260%;
-   margin-bottom: 1em;
+    font-family: monospace;
+    font-weight: 100;
+    font-size: 260%;
+    margin-bottom: 1em;
 }
 
 h1 span {
-   color: #0078e7;
+    color: #0078e7;
 }
 
 form {
-margin: 0 auto;
-vertical-align: middle;
+    margin: 0 auto;
 }
 
 input, button {
-   margin: 1em;
+    margin: 1em;
 }
 
 input#url {
-   margin-top: 0;
-   font-size: medium;
-   border: 1px solid #ccc;
-   box-shadow: inset 0 1px 3px #ddd;
-   border-radius: 4px;
-   vertical-align: middle;
-   padding: .5em .6em;
-   min-width:16em;
-   max-width:42em;
-   width: 80%;
-   color: #686868;
+    margin-top: 0;
+    font-size: medium;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    border-radius: 4px;
+    vertical-align: middle;
+    padding: .5em .6em;
+    min-width: 16em;
+    max-width: 42em;
+    width: 80%;
+    color: #686868;
 }
 
 input#url:focus {
-   outline: 0;
-   border-color: #0078e7;
+    outline: 0;
+    border-color: #0078e7;
 }
 
 button#submitBtn {
-   font-size: medium;
-   cursor: pointer;
-   padding: .6em 1.6em;
-   border: none;
-   background-color: #0078e7;
-   color: #fff;
-   text-decoration: none;
-   border-radius: 2px;
-   outline: 0;
+    font-size: medium;
+    cursor: pointer;
+    padding: .6em 1.6em;
+    border: none;
+    background-color: #0078e7;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 3px;
+    outline: 0;
 }
 
 form button#submitBtn:disabled {
@@ -67,86 +64,80 @@ form button#submitBtn:disabled {
 }
 
 button#submitBtn.disabled {
-   color: #97c8f7;
+    color: #97c8f7;
 }
 
-button#submitBtn:hover,
-button#submitBtn:focus {
+button#submitBtn:hover, button#submitBtn:focus {
     background-color: #0069d3;
     background-image: linear-gradient(#0075ea, #0066cc);
 }
+
 button#submitBtn:active {
-    box-shadow: 0 0 0 1px rgba(0,0,0, 0.15) inset, 0 0 6px rgba(0,0,0, 0.20) inset;
-    border-color: #000\9;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15) inset, 0 0 6px rgba(0, 0, 0, 0.20) inset;
 }
 
 div {
-   padding: 0 1em;
-   min-width:16em;
-   margin: 1em auto 1em;
-   max-width:44em;
+    padding: 0 1em;
+    min-width: 16em;
+    margin: 1em auto 1em;
+    max-width: 44em;
 }
 
 @media (min-width: 32em) {
-   div {
-      width: 80%;
-   }
+    div {
+        width: 80%;
+    }
 }
 
 div.faq {
-   text-align: left;
-   margin: 3em auto 1em;
+    text-align: left;
+    margin: 2.5em auto 1em;
 }
 
 h2 {
-   font-weight: normal;
-   font-size: 150%;
-   margin-bottom: .5em;
+    font-weight: normal;
+    font-size: 150%;
+    margin-bottom: .5em;
 }
 
 p, ul {
-   margin-top: 0em;
+    margin-top: 0em;
 }
 
 ul li {
-   list-style-type: circle;
-   margin-left: 0;
-   margin-bottom: .3em;
+    list-style-type: circle;
+    margin-left: 0;
+    margin-bottom: .3em;
 }
 
 a {
-   transition: all .2s ease-in-out;
-   color: #686868;
+    transition: color .2s ease-in-out;
+    color: #686868;
 }
 
-a:hover,
-a:focus,
-a:active {
-   color: #0078e7;
+a:hover, a:focus, a:active {
+    color: #0078e7;
 }
 
 p.credit {
-   text-align: center;
-   margin-top: 2em;
+    text-align: center;
+    margin-top: 2em;
 }
-p.github {
-   text-align: center;
-   margin: 1em;
-}
-p.patreon {
+
+p.github, p.patreon {
     text-align: center;
     margin: 1em;
- }
+}
 
 .loadingButton {
-   position: relative;
-   margin: 0 auto;
+    position: relative;
+    margin: 0 auto;
 }
 
 .loader {
-   position:absolute;
-   top: calc( 50% - 13px );
-   left: calc( 50% - 12px);
+    position: absolute;
+    top: calc( 50% - 13px);
+    left: calc( 50% - 12px);
     border: 4px solid transparent;
     border-top: 4px solid #fff;
     border-radius: 50%;
@@ -160,6 +151,10 @@ p.patreon {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
