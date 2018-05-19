@@ -1,6 +1,9 @@
 <?php
+require __DIR__ . '/vendor/autoload.php';
+
 include_once 'config.inc.php';
-include_once 'Hashids/Hashids.php';
+
+use Hashids\Hashids;
 
 class DoNotLinkEngine {
 
@@ -10,7 +13,6 @@ class DoNotLinkEngine {
     function __construct($url) { 
         $this->url = trim($url);
     }
-
 
     //returns true or a string containing the error message
     function check() {
@@ -60,7 +62,7 @@ class DoNotLinkEngine {
    
         $last_id = mysqli_insert_id($conn);
    
-        $hashids = new Hashids\Hashids(CODE_SALT, MIN_CODE_LENGTH);
+        $hashids = new Hashids(CODE_SALT, MIN_CODE_LENGTH);
 
         return $hashids->encode($last_id);
     }

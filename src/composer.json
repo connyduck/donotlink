@@ -1,0 +1,5 @@
+{
+    "require": {
+        "hashids/hashids": "^3.0"
+    }
+}

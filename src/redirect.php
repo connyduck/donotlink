@@ -1,6 +1,9 @@
 <?php
-include_once 'Hashids/Hashids.php';
+require __DIR__ . '/vendor/autoload.php';
+
 include_once 'config.inc.php';
+
+use Hashids\Hashids;
 
 header('X-Robots-Tag: noindex, nofollow');
 
@@ -47,7 +50,7 @@ if (preg_match(URL_REGEX, $code)) {
     return;
 }
 
-$hashids = new Hashids\Hashids(CODE_SALT, MIN_CODE_LENGTH);
+$hashids = new Hashids(CODE_SALT, MIN_CODE_LENGTH);
 $id = $hashids->decode($code);
 
 if(count($id) != 1) {
