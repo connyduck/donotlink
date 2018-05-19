@@ -5,6 +5,6 @@
 </form>
 <script src="<?php echo SERVER_PATH; ?>/assets/clipboard.min.js"></script>
 <script>
-new Clipboard('.btn');
+new ClipboardJS('.btn');
 </script>
 <a href="<?php echo SERVER_NAME.SERVER_PATH; ?>">Create another <?php echo SITE_NAME; ?> link </a>
