@@ -18,4 +18,4 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
-   <h1> do<span>NOT</span>link<span>.</span>it </h1>
+   <h1>do<span>NOT</span>link<span>.</span>it</h1>
