@@ -19,6 +19,7 @@ h1 span {
 
 form {
     margin: 0 auto;
+    position: relative;
 }
 
 input, button {
@@ -67,7 +68,8 @@ button#submitBtn.disabled {
     color: #97c8f7;
 }
 
-button#submitBtn:hover, button#submitBtn:focus {
+button#submitBtn:hover,
+button#submitBtn:focus {
     background-color: #0069d3;
     background-image: linear-gradient(#0075ea, #0066cc);
 }
@@ -157,4 +159,63 @@ p.github, p.patreon {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.tooltipped {
+    position: relative;
+}
+
+.tooltipped::after {
+    position: absolute;
+    z-index: 1000000;
+    display: none;
+    padding: .4em 1em;
+    font-size: small;
+    color: #fff;
+    text-align: center;
+    pointer-events: none;
+    content: attr(tooltiptext);
+    background: #686868;
+    border-radius: 4px;
+    opacity: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    bottom: 100%;
+    margin-bottom: 10px;
+}
+
+.tooltipped::before {
+    position: absolute;
+    z-index: 1000001;
+    display: none;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    content: "";
+    border: 6px solid transparent;
+    opacity: 0;
+    top: -10px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    bottom: auto;
+    border-top-color: #686868;
+}
+
+@keyframes tooltip-appear {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.tooltipped:hover::before,
+.tooltipped:active::before,
+.tooltipped:focus::before,
+.tooltipped:hover::after,
+.tooltipped:active::after,
+.tooltipped:focus::after {
+    display: inline-block;
+    animation: tooltip-appear .25s ease-in forwards;
 }
