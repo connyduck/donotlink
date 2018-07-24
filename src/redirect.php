@@ -6,6 +6,7 @@ include_once 'config.inc.php';
 use Hashids\Hashids;
 
 header('X-Robots-Tag: noindex, nofollow');
+header('Referrer-Policy: no-referrer');
 
 $code = $_GET['donotlink'];
 
