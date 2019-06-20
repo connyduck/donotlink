@@ -37,7 +37,6 @@ input#url {
     min-width: 16em;
     max-width: 42em;
     width: 80%;
-    color: #686868;
 }
 
 input#url:focus {
@@ -58,14 +57,10 @@ button#submitBtn {
 }
 
 form button#submitBtn:disabled {
-    background-image: none;
     background-color: #97c8f7;
+    background-image: none;
     cursor: not-allowed;
     box-shadow: none;
-}
-
-button#submitBtn.disabled {
-    color: #97c8f7;
 }
 
 button#submitBtn:hover,
@@ -219,3 +214,53 @@ p.github, p.patreon {
     display: inline-block;
     animation: tooltip-appear .25s ease-in forwards;
 }
+
+@media (prefers-color-scheme: dark) {
+    body {
+      color: #fff;
+      background-color: #343434;
+    }
+
+    h1 span {
+        color: #5CA6EB;
+    }
+
+    input#url {
+        background-color: #424242;
+        border: 1px solid #666;
+        box-shadow: inset 0 1px 3px #343434;
+        color: #fff;
+    }
+
+    input#url:focus {
+        border-color: #5CA6EB;
+    }
+
+    a {
+        color: #fff;
+    }
+
+    a:hover, a:focus, a:active {
+        color: #5CA6EB;
+    }
+
+    button#submitBtn {
+        background-color: #5CA6EB;
+        color: #343434;
+    }
+    
+    form button#submitBtn:disabled {
+        background-color: #486D90;
+    }
+    
+    button#submitBtn:hover,
+    button#submitBtn:focus {
+        background-color: #86baeb;
+        background-image: linear-gradient(#8dbeeb, #84b9eb);
+    }
+
+    .loader {
+        border-top: 4px solid #343434;
+    }
+
+  }
